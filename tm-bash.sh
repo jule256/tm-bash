@@ -8,7 +8,7 @@ logging_info=1
 
 # @todo look for wemo.sh in this script's directory instead of full path
 wemo_script="/Users/jule_/settings/scripts/tm/wemo.sh"
-wemo_ip="192.168.0.66"
+wemo_ip="192.168.0.66:49154"
 wemo_name="WeMo Switch"
 
 progress_divisor=60
