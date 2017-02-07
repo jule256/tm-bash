@@ -31,18 +31,38 @@ You'll need a fully setup Apple Timemachine harddisk and a WeMo® Switch. I deve
 
 Set the variables `wemo_script`, `wemp_ip`, `wemo_name`, and `timemachine_volume` to values matching your setup.
 
+If you want to add a [LaMetric Time](https://lametric.com/) to the setup you need to set the `lametric_*` values.
+
 ```bash
 ### configuration
 logging_log=0
 [...]
-wemo_script="/Users/jule_/settings/scripts/tm/wemo.sh"
-wemo_ip="192.168.0.66"
+logging_lametric=1
+[...]
+wemo_ip="192.168.0.66:49154"
 wemo_name="WeMo Switch"
+[...]
+lametric_push_url="https://developer.lametric.com/api/v1/dev/widget/update/com.lametric.a1b2c3d4e5f6g7h8i9j10k11l12m13n1/1"
+lametric_access_token="OZ1Y2X3W4V5U6T7S8R9Q10P11O12N13M14L15K16J17I18H19G20F21E22D23C24B25A26z27y28x29w30v31u=="
+lametric_success_delay=10
 [...]
 timemachine_volume="timemachine"
 [...]
 ```
 For more verbose output, you can set the `logging_log` value to `1`.
+
+## optional: LaMetric Time
+
+It is possible to use a [LaMetric Time](https://lametric.com/) to display the current state (standby, active, success, failed) of the _tm-bash_.
+To do that you need to [sign up for a developer account at LaMetric](https://developer.lametric.com/register) and create an [indicator app](https://developer.lametric.com/applications/createdisplay) with the _user interface_ type "name" and the _communication type_ "push".
+
+Copy the value of _URL for pushing data_ and enter it as value of `lametric_push_url` in the _configuration_ section of the _tm-bash_.
+
+You also need to copy the value of the `X-Access-Token` from the _Sample push request_ section and enter it as `lametric_access_token` in the _tm-bash_. This is used to authenticate the push requests and makes sure that only your _tm-bash_ can send status data to your _LaMetric Time_.
+
+Finally, to enable the logging to your _LaMetric Time_ you need to set the `logging_lametric` variable to `1`. 
+
+
 
 ## usage
 
