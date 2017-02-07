@@ -5,11 +5,16 @@
 logging_log=0
 logging_error=1
 logging_info=1
+logging_lametric=0
 
-# @todo look for wemo.sh in this script's directory instead of full path
-wemo_script="/Users/jule_/settings/scripts/tm/wemo.sh"
-wemo_ip="192.168.0.66:49154"
-wemo_name="WeMo Switch"
+# full wemo path by getting current working directory (from http://stackoverflow.com/a/246128)
+wemo_script="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/wemo.sh"
+wemo_ip="192.168.1.10:49154"
+wemo_name="WeMo Switch 2"
+
+lametric_push_url="https://developer.lametric.com/api/v1/dev/widget/update/com.lametric.a1b2c3d4e5f6g7h8j9k10l11m12n14o1/1"
+lametric_access_token="OZ1Y2X3W4V5U6T7S8R9Q10P11O12N13M14L15K16J17I18H19G20F21E22D23C24B25A26z27y28x29w30v31u=="
+lametric_success_delay=200
 
 progress_divisor=60
 progress_character="■"
@@ -113,10 +118,67 @@ printProgress() {
 	fi		
 }
 
+# param1: text
+# param2: icon
+lametricCurl() {
+    if [ "$logging_lametric" == 1 ] ; then
+        json=`echo "{\"frames\": {\"0\": {\"text\":\"${1}\", \"icon\":\"${2}\", \"index\": \"0\"}}}"`
+       	curl \
+        -H "x-access-token: $lametric_access_token" \
+        -H "content-type: application/json" \
+        -H "cache-control: no-cache" \
+        --data "$json" "$lametric_push_url"	
+	fi
+}
+
+# set LaMetric to error
+# a7117 → tm_error1
+lametricError() {
+    lametricCurl "failed" "a7117"
+}
+
+# set LaMetric to progress
+# a7183 → tm_progress1
+lametricProgress() {
+    lametricCurl "active" "a7183"
+}
+
+# set LaMetric to success
+# a7178 → tm_ok4
+lametricSuccess() {
+    lametricCurl "success" "a7178"
+}
+
+# set LaMetric to sleep
+# a7116 → tm_standby3
+lametricSleep() {
+    lametricCurl "stby" "a7115"
+}
+
 ### procedure
+
+# if the first argument is stby, sleep for lametric_success_delay seconds
+# and then send LaMetric to "sleep"
+if [ "$1" == "stby" ] && [ "$logging_lametric" == 1 ] ; then
+    {
+   	   sleep $lametric_success_delay
+       lametricSleep
+    }&
+    exit 0
+fi
+# if the first argument is reset, send LaMetric to sleep immediately
+# can be used if the process crashed and LaMetric is in a "wrong" state
+if [ "$1" == "reset" ] && [ "$logging_lametric" == 1 ] ; then
+    lametricSleep
+    exit 0
+fi
+
+# first argument is not stby nor reset, proceed with timemachine backup
 
 isWemoDependencyAvailable "$wemo_script"
 isWemoAvailable "$wemo_ip" "$wemo_name"
+
+lametricSleep
 
 wemo_state=$(getWemoState "$wemo_ip")
 if [ "$wemo_state" == "OFF" ] ; then
@@ -148,6 +210,8 @@ if [ "$tmRunning" == 0 ] ; then
 	
 	tmutil startbackup
 	
+	lametricProgress
+	
 	tmRunning=$(isTimemachineRunning)
 	i=0
 	while [ "$tmRunning" == 1 ]
@@ -167,13 +231,19 @@ if [ "$tmRunning" == 0 ] ; then
 	if [ "$mount" ] ; then
 		info "unmounting '$timemachine_volume'"
 		diskutil quiet unmount "$timemachine_volume"
-	else 
+	else
+	
+	    lametricError
+	
     	error "no mount point with '$timemachine_volume' found"
     	exit 1
 	fi
 	
 	mount=$(mount | grep "$timemachine_volume")
 	if [ "$mount" ] ; then
+	
+		lametricError
+	
 		error "unmounting '$timemachine_volume' failed, please check and eject it manually"
 		exit 1
 	fi
@@ -184,6 +254,12 @@ if [ "$tmRunning" == 0 ] ; then
 	
 	info "Backup complete, Timemachine Volume ejected, Power off"
 	info "It is now safe to remove the USB cable from the MacBook Pro"
+	
+	lametricSuccess
+	
+	# send LaMetric to "sleep" after lametric_success_delay seconds
+	$0 stby
+	
 else
 	info "Timemachine is already running";
 fi
