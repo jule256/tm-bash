@@ -17,7 +17,7 @@ All the user has to do is plug in the USB cable, start the tm-bash script, wait,
 
 ## external dependencies
 
-For controlling the WeMo® I am using a bash script from 2013 I found [on the internet](http://moderntoil.com/?p=839). [Here](http://wemo.forumatic.com/viewtopic.php?t=5&p=9) is a discussion about that script from 2014.
+For controlling the WeMo® I am using a bash script from 2013 I found [on the internet](http://moderntoil.com/?p=839). ~~[Here](http://wemo.forumatic.com/viewtopic.php?t=5&p=9) is a discussion about that script from 2014~~ (the page is a 404 now and sadly [Wayback Machine](https://web.archive.org/web/20160601000000*/http://wemo.forumatic.com/viewtopic.php?t=5&p=9) has not archived a copy).
 
 For completeness reasons I added the `wemo.sh` script to this GitHub repository.
 
