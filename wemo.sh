@@ -28,8 +28,8 @@ else
         PORT=$port
     fi
   done
-
   fi
+fi
 
 if [ "$1" = "" ]; then
   echo "Usage: `basename $0` IP_ADDRESS[:PORT] ON/OFF/GETSTATE/GETSIGNALSTRENGTH/GETFRIENDLYNAME"
