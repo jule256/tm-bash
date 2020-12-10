@@ -17,13 +17,19 @@ if echo $1 | grep -q :; then
   IP=`echo $1 | cut -d: -f1`
   PORT=`echo $1 | cut -d: -f2`
 else
-  PORTTEST=$(curl -m 1 --connect-timeout 1 -s $IP:49152 | grep "404")
-  if [ $? -ne 0 -o "$PORTTEST" = "" ]; then
-    PORT=49153
-  else
-    PORT=49152
+  for port in {49151..49155}
+    do
+    thisPort=$(curl -s $IP:$port | grep "404")
+    if [ "$thisPort" = "" ]
+      then
+        echo 'not port ' $port
+      else
+        echo 'Wemo responded on port ' $port
+        PORT=$port
+    fi
+  done
+
   fi
-fi
 
 if [ "$1" = "" ]; then
   echo "Usage: `basename $0` IP_ADDRESS[:PORT] ON/OFF/GETSTATE/GETSIGNALSTRENGTH/GETFRIENDLYNAME"
