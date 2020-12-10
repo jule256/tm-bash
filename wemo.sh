@@ -28,7 +28,6 @@ else
         PORT=$port
     fi
   done
-  fi
 fi
 
 if [ "$1" = "" ]; then
